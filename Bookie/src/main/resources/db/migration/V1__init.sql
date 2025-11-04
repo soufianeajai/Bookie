@@ -1,0 +1,28 @@
+create sequence booking_seq start with 1 increment by 20;
+create sequence guest_seq start with 1 increment by 20;
+create sequence hotel_seq start with 1 increment by 20;
+create sequence inventory_seq start with 1 increment by 20;
+create sequence payment_seq start with 1 increment by 20;
+create sequence room_seq start with 1 increment by 20;
+create sequence user_seq start with 1 increment by 20;
+create table bookings (check_in_date date, check_out_date date, rooms_count integer, created_date timestamp(6), hotel_id bigint not null, id bigint not null, last_modified_date timestamp(6), payment_id bigint unique, room_id bigint not null, user_id bigint not null, booking_status varchar(255) not null check (booking_status in ('RESERVED','CONFIRMED','CANCELED')), created_by varchar(255), last_modified_by varchar(255), primary key (id));
+create table bookings_guest (booking_id bigint not null, guest_id bigint not null, primary key (booking_id, guest_id));
+create table guests (age integer, id bigint not null, user_id bigint not null, gender varchar(255) check (gender in ('MALE','FEMALE','OTHER')), name varchar(255), primary key (id));
+create table hotels (active boolean not null, created_date timestamp(6), id bigint not null, last_modified_date timestamp(6), address varchar(255), city varchar(255), created_by varchar(255), email varchar(255), last_modified_by varchar(255), location varchar(255), name varchar(255) not null unique, phone_number varchar(255), amenities TEXT[], photos TEXT[], primary key (id));
+create table inventories (booked_count INTEGER DEFAULT 0 not null, closed boolean not null, date date, price numeric(10,2) not null, surge_factor numeric(5,2) not null, total_count integer not null, created_date timestamp(6), hotel_id bigint not null, id bigint not null, last_modified_date timestamp(6), room_id bigint not null, city varchar(255) not null, created_by varchar(255), last_modified_by varchar(255), primary key (id), constraint unique_hotel_room_date unique (hotel_id, room_id, date));
+create table payments (amount numeric(10,2), created_date timestamp(6), id bigint not null, last_modified_date timestamp(6), created_by varchar(255), last_modified_by varchar(255), payment_status varchar(255) not null check (payment_status in ('PENDING','CONFIRMED','CANCELLED')), transaction_id varchar(255) not null unique, primary key (id));
+create table rooms (base_price numeric(10,2) not null, capacity integer not null, total_count integer not null, created_date timestamp(6), hotel_id bigint not null, id bigint not null, last_modified_date timestamp(6), created_by varchar(255), last_modified_by varchar(255), type varchar(255) not null, amenities TEXT[], photos TEXT[], primary key (id));
+create table user_roles (user_id bigint not null, roles varchar(255) not null check (roles in ('GUEST','HOTEL_MANAGER')), primary key (user_id, roles));
+create table users (created_date timestamp(6), id bigint not null, last_modified_date timestamp(6), created_by varchar(255), email varchar(255) not null unique, last_modified_by varchar(255), name varchar(255), password varchar(255) not null, primary key (id));
+alter table if exists bookings add constraint bookings_hotel_fk foreign key (hotel_id) references hotels;
+alter table if exists bookings add constraint bookings_payment_fk foreign key (payment_id) references payments;
+alter table if exists bookings add constraint bookings_room_fk foreign key (room_id) references rooms;
+alter table if exists bookings add constraint bookings_user_fk foreign key (user_id) references users;
+alter table if exists bookings_guest add constraint guests_booking_fk foreign key (guest_id) references guests;
+alter table if exists bookings_guest add constraint bookings_guest_fk foreign key (booking_id) references bookings;
+alter table if exists guests add constraint guests_user_fk foreign key (user_id) references users;
+alter table if exists inventories add constraint inventories_hotel_fk foreign key (hotel_id) references hotels;
+alter table if exists inventories add constraint inventories_room_fk foreign key (room_id) references rooms;
+alter table if exists rooms add constraint rooms_hotel_fk foreign key (hotel_id) references hotels;
+alter table if exists user_roles add constraint users_role_fk foreign key (user_id) references users;
+
