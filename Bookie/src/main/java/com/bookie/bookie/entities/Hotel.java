@@ -45,4 +45,8 @@ public class Hotel extends AuditableBase {
 
     @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Room> rooms;
+
+    @ManyToOne
+    @JoinColumn(name = "owner_id", nullable = false, foreignKey = @ForeignKey(name = "hotels_user_fk"))
+    private User owner;
 }
