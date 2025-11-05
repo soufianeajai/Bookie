@@ -1,4 +1,4 @@
-package com.bookie.bookie.wrappers;
+package com.bookie.bookie.advices.wrappers;
 
 import lombok.Data;
 

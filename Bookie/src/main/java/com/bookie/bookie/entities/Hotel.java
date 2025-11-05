@@ -26,7 +26,7 @@ public class Hotel extends AuditableBase {
     @Column(name = "name", nullable = false, unique = true)
     private String name;
 
-    @Column(name = "city")
+    @Column(name = "city", nullable = false)
     private String city;
 
     @Type(ListArrayType.class)
@@ -47,6 +47,6 @@ public class Hotel extends AuditableBase {
     private List<Room> rooms;
 
     @ManyToOne
-    @JoinColumn(name = "owner_id", nullable = false, foreignKey = @ForeignKey(name = "hotels_user_fk"))
+    @JoinColumn(name = "owner_id", nullable = true, foreignKey = @ForeignKey(name = "hotels_user_fk"))
     private User owner;
 }
