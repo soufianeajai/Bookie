@@ -3,7 +3,6 @@ package com.bookie.bookie.entities;
 
 import io.hypersistence.utils.hibernate.type.array.ListArrayType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Type;
@@ -21,7 +20,7 @@ public class Room extends AuditableBase {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "room_seq")
     private Long id;
 
-    @ManyToOne()
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "hotel_id", nullable = false, foreignKey = @ForeignKey(name = "rooms_hotel_fk"))
     private Hotel hotel;
 

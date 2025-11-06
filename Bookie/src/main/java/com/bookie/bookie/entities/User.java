@@ -3,7 +3,6 @@ package com.bookie.bookie.entities;
 import com.bookie.bookie.entities.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
 import java.util.Set;

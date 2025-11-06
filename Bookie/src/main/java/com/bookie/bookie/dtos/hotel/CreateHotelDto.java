@@ -1,6 +1,6 @@
 package com.bookie.bookie.dtos.hotel;
 
-import com.bookie.bookie.entities.Embeddable.HotelContactInfo;
+import com.bookie.bookie.entities.embeddable.HotelContactInfo;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

@@ -1,7 +1,6 @@
 package com.bookie.bookie.dtos.hotel;
 
-import com.bookie.bookie.entities.Embeddable.HotelContactInfo;
-import com.bookie.bookie.entities.Room;
+import com.bookie.bookie.entities.embeddable.HotelContactInfo;
 import lombok.Data;
 
 import java.util.List;

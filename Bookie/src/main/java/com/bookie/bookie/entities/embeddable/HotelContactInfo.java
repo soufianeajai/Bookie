@@ -1,4 +1,4 @@
-package com.bookie.bookie.entities.Embeddable;
+package com.bookie.bookie.entities.embeddable;
 
 import jakarta.persistence.Embeddable;
 import jakarta.validation.constraints.Email;

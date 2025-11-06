@@ -1,7 +1,7 @@
 package com.bookie.bookie.entities;
 
 
-import com.bookie.bookie.entities.Embeddable.HotelContactInfo;
+import com.bookie.bookie.entities.embeddable.HotelContactInfo;
 import io.hypersistence.utils.hibernate.type.array.ListArrayType;
 import jakarta.persistence.*;
 import lombok.Getter;

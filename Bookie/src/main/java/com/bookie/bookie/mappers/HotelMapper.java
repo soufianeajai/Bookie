@@ -9,8 +9,6 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = "spring")
 public interface HotelMapper {
     HotelDto toDto(Hotel hotel);
-    Hotel toEntity(HotelDto hotelDto);
-    CreateHotelDto toCreateDto(Hotel hotel);
     Hotel toEntity(CreateHotelDto hotelDto);
     void updateEntityFromDto(CreateHotelDto hotelDto, @MappingTarget Hotel hotel);
 }
