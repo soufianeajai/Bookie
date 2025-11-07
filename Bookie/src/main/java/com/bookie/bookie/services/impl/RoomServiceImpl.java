@@ -9,10 +9,9 @@ import com.bookie.bookie.mappers.HotelMapper;
 import com.bookie.bookie.mappers.RoomMapper;
 import com.bookie.bookie.repositories.HotelRepository;
 import com.bookie.bookie.repositories.RoomRepository;
+import com.bookie.bookie.services.InventoryService;
 import com.bookie.bookie.services.RoomService;
 import com.bookie.bookie.utils.PatchHelper;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,8 +26,8 @@ public class RoomServiceImpl implements RoomService {
     private final RoomRepository roomRepository;
     private final RoomMapper roomMapper;
     private final HotelRepository hotelRepository;
-    private final HotelMapper hotelMapper;
     private final PatchHelper patchHelper;
+    private final InventoryService inventoryService;
 
     @Override
     @Transactional
@@ -37,12 +36,14 @@ public class RoomServiceImpl implements RoomService {
         Room room = roomMapper.toEntity(createRoomDto);
         room.setHotel(hotel);
 
-        // create inventory for it when room created and hotel is active
-
+        if(Boolean.TRUE.equals(hotel.getActive())){
+            inventoryService.initializeRoomForAYear(room);
+        }
         return roomMapper.toDto(roomRepository.save(room));
     }
 
     @Override
+    @Transactional
     public List<RoomDto> getAllRoomsInHotel(Long hotelId) {
         Hotel hotel = hotelRepository.findById(hotelId).orElseThrow(() -> new ResourceNotFoundException("Hotel with Id " + hotelId + " not found"));
         List<Room> rooms = hotel.getRooms();
@@ -75,10 +76,9 @@ public class RoomServiceImpl implements RoomService {
 
 
     @Override
+    @Transactional
     public void deleteRoomById(Long id) {
         Room room = roomRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Room with id " + id + " not found"));
-
-//        delete inventory for the room then delete it
         roomRepository.delete(room);
     }
 }

@@ -2,8 +2,7 @@ package com.bookie.bookie.entities;
 
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -16,6 +15,9 @@ import java.time.LocalDate;
         ))
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Inventory extends AuditableBase {
     @Id
     @SequenceGenerator(name = "inventory_seq", sequenceName = "inventory_seq", allocationSize = 20)
@@ -23,11 +25,11 @@ public class Inventory extends AuditableBase {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "hotel_id", nullable = false, foreignKey = @ForeignKey(name = "inventories_hotel_fk"))
+    @JoinColumn(name = "hotel_id", nullable = false, foreignKey = @ForeignKey(name = "inventories_hotel_fk", foreignKeyDefinition = "FOREIGN KEY (hotel_id) REFERENCES hotels (id) ON DELETE CASCADE"))
     private Hotel hotel;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "room_id", nullable = false, foreignKey = @ForeignKey(name = "inventories_room_fk"))
+    @JoinColumn(name = "room_id", nullable = false, foreignKey = @ForeignKey(name = "inventories_room_fk", foreignKeyDefinition = "FOREIGN KEY (room_id) REFERENCES rooms (id) ON DELETE CASCADE"))
     private Room room;
 
     @Column(name = "date")

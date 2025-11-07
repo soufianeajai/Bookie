@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -33,7 +34,7 @@ public class PatchHelper {
         try {
             objectMapper.updateValue(dtoToPatch, patchValues);
         } catch (JsonMappingException e) {
-            throw new IllegalArgumentException("Invalid patch data: " + e.getMessage(), e);        }
+            throw new HttpMessageNotReadableException("Invalid patch data: " + e.getMessage(), e);        }
         Set<ConstraintViolation<T>> violations = validator.validate(dtoToPatch);
         if (!violations.isEmpty()) {
             throw new ConstraintViolationException(violations);

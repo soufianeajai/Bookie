@@ -11,7 +11,13 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
-@Table(name = "rooms")
+@Table(name = "rooms",
+        uniqueConstraints = @UniqueConstraint(
+                name = "unique_hotel_room_type",
+                columnNames = {"hotel_id", "type"}
+        )
+
+)
 @Getter @Setter
 public class Room extends AuditableBase {
 
@@ -21,7 +27,10 @@ public class Room extends AuditableBase {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "hotel_id", nullable = false, foreignKey = @ForeignKey(name = "rooms_hotel_fk"))
+    @JoinColumn(name = "hotel_id", nullable = false, foreignKey =
+                @ForeignKey(name = "rooms_hotel_fk",
+                            foreignKeyDefinition = "FOREIGN KEY (hotel_id) REFERENCES hotels (id) ON DELETE CASCADE"
+    ))
     private Hotel hotel;
 
     @Column(name = "type", nullable = false)
@@ -43,5 +52,8 @@ public class Room extends AuditableBase {
 
     @Column(name = "capacity", nullable = false)
     private Integer capacity;
+
+    @OneToMany(mappedBy = "room")
+    private List<Inventory> inventories;
 
 }

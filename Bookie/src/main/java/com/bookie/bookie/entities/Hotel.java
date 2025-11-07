@@ -43,7 +43,7 @@ public class Hotel extends AuditableBase {
     @Column(nullable = false)
     private Boolean active;
 
-    @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "hotel", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
     private List<Room> rooms;
 
     @ManyToOne
