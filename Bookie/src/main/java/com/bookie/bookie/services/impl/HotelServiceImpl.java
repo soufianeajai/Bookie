@@ -50,7 +50,6 @@ public class HotelServiceImpl implements HotelService {
 
     @Override
     @Transactional
-    @Modifying
     public HotelDto updateHotelById(Long id, CreateHotelDto hotelDto) {
         Hotel hotel = hotelRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Hotel with id " + id + " not found"));
         hotelMapper.updateEntityFromDto(hotelDto, hotel);
@@ -59,14 +58,12 @@ public class HotelServiceImpl implements HotelService {
 
     @Override
     @Transactional
-    @Modifying
     public void deleteHotelById(Long id) {
         Hotel hotel = hotelRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Hotel with id " + id + " not found"));
         hotel.setActive(false);
     }
     @Override
     @Transactional
-    @Modifying
     public HotelDto activateHotel(Long id){
         Hotel hotel = hotelRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Hotel with id " + id + " not found"));
         hotel.setActive(true);

@@ -2,7 +2,6 @@ package com.bookie.bookie.controllers;
 
 import com.bookie.bookie.dtos.room.CreateRoomDto;
 import com.bookie.bookie.dtos.room.RoomDto;
-import com.bookie.bookie.entities.Room;
 import com.bookie.bookie.services.RoomService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -12,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/admin/hotels/{hotelId}/rooms")
@@ -46,5 +46,10 @@ public class RoomAdminController {
     @PutMapping("{id}")
     public ResponseEntity<RoomDto> updateRoomById(@RequestBody CreateRoomDto createRoomDto,  @PathVariable Long id, @PathVariable Long hotelId){
         return ResponseEntity.ok(roomService.updateRoomById(createRoomDto, id));
+    }
+
+    @PatchMapping("{id}")
+    public ResponseEntity<RoomDto> patchRoomById(@RequestBody Map<String, Object> patchedValues, @PathVariable Long id, @PathVariable Long hotelId){
+        return ResponseEntity.ok(roomService.patchRoomById(patchedValues, id));
     }
 }

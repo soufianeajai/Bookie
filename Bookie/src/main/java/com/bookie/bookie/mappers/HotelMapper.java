@@ -3,12 +3,15 @@ package com.bookie.bookie.mappers;
 import com.bookie.bookie.dtos.hotel.CreateHotelDto;
 import com.bookie.bookie.dtos.hotel.HotelDto;
 import com.bookie.bookie.entities.Hotel;
+import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 
 @Mapper(componentModel = "spring")
 public interface HotelMapper {
     HotelDto toDto(Hotel hotel);
     Hotel toEntity(CreateHotelDto hotelDto);
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntityFromDto(CreateHotelDto hotelDto, @MappingTarget Hotel hotel);
 }
