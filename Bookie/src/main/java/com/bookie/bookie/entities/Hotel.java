@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Type;
 
 
@@ -43,8 +44,12 @@ public class Hotel extends AuditableBase {
     @Column(nullable = false)
     private Boolean active;
 
+    @BatchSize(size = 20)
     @OneToMany(mappedBy = "hotel", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
     private List<Room> rooms;
+
+    @OneToMany(mappedBy = "hotel", fetch = FetchType.LAZY)
+    private List<Inventory> inventories;
 
     @ManyToOne
     @JoinColumn(name = "owner_id", nullable = true, foreignKey = @ForeignKey(name = "hotels_user_fk"))

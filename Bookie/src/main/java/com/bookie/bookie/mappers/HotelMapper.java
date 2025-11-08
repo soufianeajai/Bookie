@@ -2,6 +2,7 @@ package com.bookie.bookie.mappers;
 
 import com.bookie.bookie.dtos.hotel.CreateHotelDto;
 import com.bookie.bookie.dtos.hotel.HotelDto;
+import com.bookie.bookie.dtos.hotel.HotelSearchDto;
 import com.bookie.bookie.entities.Hotel;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
@@ -14,4 +15,5 @@ public interface HotelMapper {
     Hotel toEntity(CreateHotelDto hotelDto);
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntityFromDto(CreateHotelDto hotelDto, @MappingTarget Hotel hotel);
+    HotelSearchDto toSearchDto(Hotel hotel);
 }

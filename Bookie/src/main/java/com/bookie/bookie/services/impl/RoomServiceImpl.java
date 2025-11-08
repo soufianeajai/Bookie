@@ -5,7 +5,6 @@ import com.bookie.bookie.dtos.room.RoomDto;
 import com.bookie.bookie.entities.Hotel;
 import com.bookie.bookie.entities.Room;
 import com.bookie.bookie.exceptions.ResourceNotFoundException;
-import com.bookie.bookie.mappers.HotelMapper;
 import com.bookie.bookie.mappers.RoomMapper;
 import com.bookie.bookie.repositories.HotelRepository;
 import com.bookie.bookie.repositories.RoomRepository;
@@ -28,11 +27,14 @@ public class RoomServiceImpl implements RoomService {
     private final HotelRepository hotelRepository;
     private final PatchHelper patchHelper;
     private final InventoryService inventoryService;
+    private static final String ROOM_NOT_FOUND_ERROR_MESSAGE = "Room not found with id : ";
+    private static final String HOTEL_NOT_FOUND_ERROR_MESSAGE = "Hotel not found with id : ";
+
 
     @Override
     @Transactional
     public RoomDto createNewRoom(CreateRoomDto createRoomDto, Long hotelId) {
-        Hotel hotel = hotelRepository.findById(hotelId).orElseThrow(() -> new ResourceNotFoundException("Hotel with Id " + hotelId + " not found"));
+        Hotel hotel = hotelRepository.findById(hotelId).orElseThrow(() -> new ResourceNotFoundException(HOTEL_NOT_FOUND_ERROR_MESSAGE + hotelId));
         Room room = roomMapper.toEntity(createRoomDto);
         room.setHotel(hotel);
 
@@ -45,21 +47,21 @@ public class RoomServiceImpl implements RoomService {
     @Override
     @Transactional
     public List<RoomDto> getAllRoomsInHotel(Long hotelId) {
-        Hotel hotel = hotelRepository.findById(hotelId).orElseThrow(() -> new ResourceNotFoundException("Hotel with Id " + hotelId + " not found"));
+        Hotel hotel = hotelRepository.findById(hotelId).orElseThrow(() -> new ResourceNotFoundException(HOTEL_NOT_FOUND_ERROR_MESSAGE + hotelId));
         List<Room> rooms = hotel.getRooms();
         return rooms.stream().map(roomMapper::toDto).toList();
     }
 
     @Override
     public RoomDto getRoomById(Long id) {
-        Room room = roomRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Room with id " + id + " not found"));
+        Room room = roomRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(ROOM_NOT_FOUND_ERROR_MESSAGE + id));
         return roomMapper.toDto(room);
     }
 
     @Override
     @Transactional
     public RoomDto updateRoomById(CreateRoomDto createRoomDto, Long id) {
-        Room room = roomRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Room with id " + id + " not found"));
+        Room room = roomRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(ROOM_NOT_FOUND_ERROR_MESSAGE + id));
         roomMapper.updateEntityFromDto(createRoomDto, room);
         return roomMapper.toDto(room);
     }
@@ -67,7 +69,7 @@ public class RoomServiceImpl implements RoomService {
     @Override
     @Transactional
     public RoomDto patchRoomById(Map<String, Object> patchValues, Long id) {
-        Room room = roomRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Room with id " + id + " not found"));
+        Room room = roomRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(ROOM_NOT_FOUND_ERROR_MESSAGE + id));
         CreateRoomDto createRoomDto = roomMapper.toCreateRoomDto(room);
         CreateRoomDto mergedDto = patchHelper.mergeAndValidate(createRoomDto, patchValues);
         roomMapper.updateEntityFromDto(mergedDto, room);
@@ -78,7 +80,7 @@ public class RoomServiceImpl implements RoomService {
     @Override
     @Transactional
     public void deleteRoomById(Long id) {
-        Room room = roomRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Room with id " + id + " not found"));
+        Room room = roomRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(ROOM_NOT_FOUND_ERROR_MESSAGE + id));
         roomRepository.delete(room);
     }
 }
