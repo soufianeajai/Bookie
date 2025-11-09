@@ -14,7 +14,8 @@ import java.time.LocalDate;
 
 public class HotelSpecifications {
 
-    private HotelSpecifications(){}
+    private HotelSpecifications() {
+    }
 
     private static Specification<Hotel> empty() {
         return (root, query, cb) -> cb.conjunction();
@@ -24,35 +25,37 @@ public class HotelSpecifications {
         return (root, query, cb) -> cb.equal(root.get("city"), city);
     }
 
-//    public static Specification<Hotel> hasRoomsCount(Integer count) {
-//        return (root, query, cb) -> cb.greaterThanOrEqualTo(root.get("roomsCount"), count);
-//    }
-
-    public static Specification<Hotel> hasRoomType(String roomType){
+    public static Specification<Hotel> hasRoomType(String roomType) {
         return (root, query, criteriaBuilder) -> {
             Join<Hotel, Room> hotelRoomJoin = root.join("rooms");
-            assert query != null;
-            query.distinct(true);
             return criteriaBuilder.equal(hotelRoomJoin.get("type"), roomType);
         };
     }
 
-    public static Specification<Hotel> hasAvailableInventory(LocalDate startDate, LocalDate endDate, Integer roomsCount) {
+    public static Specification<Hotel> hasAvailableInventory(
+            LocalDate startDate, LocalDate endDate, String roomType, Integer roomsCount) {
+
         return (root, query, cb) -> {
-            var roomsAvailabilityPredicate = cb.conjunction();
-            Join<Hotel, Inventory> inventoryJoin = root.join("inventories", JoinType.INNER);
-            assert query != null;
+            assert (query != null);
             query.distinct(true);
-            var datePredicate = cb.between(inventoryJoin.get("date"), startDate, endDate);
-            var availabilityPredicate = cb.lessThan(inventoryJoin.get("bookedCount"), inventoryJoin.get("totalCount"));
-            Predicate predicate = cb.and(datePredicate, availabilityPredicate);
-            if (roomsCount != null){
+
+            Join<Hotel, Inventory> inventoryJoin = root.join("inventories", JoinType.INNER);
+            Join<Inventory, Room> roomJoin = inventoryJoin.join("room", JoinType.INNER);
+            Predicate datePredicate = cb.between(inventoryJoin.get("date"), startDate, endDate);
+            Predicate availabilityPredicate = cb.lessThan(inventoryJoin.get("bookedCount"), inventoryJoin.get("totalCount"));
+            Predicate finalPredicate = cb.and(datePredicate, availabilityPredicate);
+            if (roomType != null) {
+                Predicate roomTypePredicate = cb.equal(roomJoin.get("type"), roomType);
+                finalPredicate = cb.and(finalPredicate, roomTypePredicate);
+            }
+            if (roomsCount != null) {
                 Expression<Integer> totalCountExpr = inventoryJoin.get("totalCount");
                 Expression<Integer> bookedCountExpr = inventoryJoin.get("bookedCount");
-                var availableCountExpr = cb.diff(totalCountExpr, bookedCountExpr);
-                roomsAvailabilityPredicate = cb.greaterThanOrEqualTo(availableCountExpr, roomsCount);
+                Expression<Integer> availableCountExpr = cb.diff(totalCountExpr, bookedCountExpr);
+                Predicate roomsAvailabilityPredicate = cb.greaterThanOrEqualTo(availableCountExpr, roomsCount);
+                finalPredicate = cb.and(finalPredicate, roomsAvailabilityPredicate);
             }
-            return cb.and(predicate, roomsAvailabilityPredicate);
+            return finalPredicate;
         };
     }
 
@@ -65,9 +68,8 @@ public class HotelSpecifications {
             spec = spec.and(hasRoomType(criteria.getRoomType()));
         }
         if (criteria.getStartDate() != null && criteria.getEndDate() != null) {
-            spec = spec.and(hasAvailableInventory(criteria.getStartDate(), criteria.getEndDate(), criteria.getRoomsCount()));
+            spec = spec.and(hasAvailableInventory(criteria.getStartDate(), criteria.getEndDate(), criteria.getRoomType(), criteria.getRoomsCount()));
         }
         return spec;
     }
-
 }

@@ -2,8 +2,6 @@ package com.bookie.bookie.services.impl;
 
 import com.bookie.bookie.dtos.hotel.CreateHotelDto;
 import com.bookie.bookie.dtos.hotel.HotelDto;
-import com.bookie.bookie.dtos.hotel.HotelSearchCriteria;
-import com.bookie.bookie.dtos.hotel.HotelSearchDto;
 import com.bookie.bookie.entities.Hotel;
 import com.bookie.bookie.entities.Room;
 import com.bookie.bookie.exceptions.ResourceNotFoundException;
@@ -12,13 +10,9 @@ import com.bookie.bookie.repositories.HotelRepository;
 import com.bookie.bookie.repositories.RoomRepository;
 import com.bookie.bookie.services.HotelService;
 import com.bookie.bookie.services.InventoryService;
-import com.bookie.bookie.utils.HotelSpecifications;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -84,11 +78,6 @@ public class HotelServiceImpl implements HotelService {
         return hotelMapper.toDto(hotel);
     }
 
-    @Override
-    @Transactional
-    public Page<HotelSearchDto> searchHotels(HotelSearchCriteria criteria, Pageable pageable){
-        Specification<Hotel> spec = HotelSpecifications.withCriteria(criteria);
-        Page<Hotel> hotels = hotelRepository.findAll(spec, pageable);
-        return hotels.map(hotelMapper::toSearchDto);
-    }
+
+
 }

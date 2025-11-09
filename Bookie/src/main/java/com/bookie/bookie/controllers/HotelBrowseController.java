@@ -1,9 +1,8 @@
 package com.bookie.bookie.controllers;
 
-import com.bookie.bookie.dtos.hotel.HotelDto;
 import com.bookie.bookie.dtos.hotel.HotelSearchCriteria;
 import com.bookie.bookie.dtos.hotel.HotelSearchDto;
-import com.bookie.bookie.services.HotelService;
+import com.bookie.bookie.services.InventoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,7 +21,7 @@ import java.time.LocalDate;
 @Validated
 public class HotelBrowseController {
 
-    private final HotelService hotelService;
+    private final InventoryService inventoryService;
 
 
     @GetMapping("search")
@@ -36,7 +35,7 @@ public class HotelBrowseController {
             )
     {
         HotelSearchCriteria criteria = new HotelSearchCriteria(city, startDate, endDate, roomType, roomsCount);
-        Page<HotelSearchDto> results = hotelService.searchHotels(criteria, pageable);
+        Page<HotelSearchDto> results = inventoryService.searchAvailableHotels(criteria, pageable);
         return ResponseEntity.ok(results);
     }
 }

@@ -1,7 +1,6 @@
 package com.bookie.bookie.dtos.hotel;
 
 import com.bookie.bookie.dtos.room.RoomDto;
-import com.bookie.bookie.entities.Room;
 import com.bookie.bookie.entities.embeddable.HotelContactInfo;
 import lombok.AllArgsConstructor;
 import lombok.Data;

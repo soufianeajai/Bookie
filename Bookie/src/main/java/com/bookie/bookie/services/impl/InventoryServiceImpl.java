@@ -1,10 +1,16 @@
 package com.bookie.bookie.services.impl;
 
+import com.bookie.bookie.dtos.hotel.HotelSearchCriteria;
+import com.bookie.bookie.dtos.hotel.HotelSearchDto;
+import com.bookie.bookie.entities.Hotel;
 import com.bookie.bookie.entities.Inventory;
 import com.bookie.bookie.entities.Room;
+import com.bookie.bookie.mappers.HotelMapper;
 import com.bookie.bookie.repositories.InventoryRepository;
 import com.bookie.bookie.services.InventoryService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,7 +24,7 @@ import java.util.List;
 public class InventoryServiceImpl implements InventoryService {
 
     private final InventoryRepository inventoryRepository;
-
+    private final HotelMapper hotelMapper;
     @Override
     @Transactional
     public void initializeRoomForAYear(Room room) {
@@ -44,8 +50,9 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     @Override
-    public void deleteFutureInventories(Room room) {
-        inventoryRepository.deleteByDateAfterAndRoom(LocalDate.now(), room);
-        inventoryRepository.flush();
+    @Transactional()
+    public Page<HotelSearchDto> searchAvailableHotels(HotelSearchCriteria criteria, Pageable pageable) {
+        Page<Hotel> hotels = inventoryRepository.findWithDynamicAvailability(criteria, pageable);
+        return hotels.map(hotelMapper::toSearchDto);
     }
 }
