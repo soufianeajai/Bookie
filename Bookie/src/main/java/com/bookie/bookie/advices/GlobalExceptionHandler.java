@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -68,6 +69,27 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiResponse<Object>> handleConstraintViolationException(IllegalArgumentException ex, HttpServletRequest request) {
+        String error = ex.getMessage();
+        log.warn("A IllegalArgumentException occurred: {}", error, ex);
+        ApiError apiError = new ApiError("Validation Failed", "VALIDATION_ERROR", error.lines().toList());
+        ApiResponse<Object> response = ApiResponse.error(apiError);
+        response.setPath(request.getRequestURI());
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+
+    @ExceptionHandler(InvalidDataAccessApiUsageException.class)
+    public ResponseEntity<ApiResponse<Object>> handleConstraintViolationException(InvalidDataAccessApiUsageException ex, HttpServletRequest request) {
+        String error = ex.getMessage();
+        log.warn("A InvalidDataAccessApiUsageException occurred: {}", error, ex);
+        ApiError apiError = new ApiError("Validation Failed", "VALIDATION_ERROR", error.lines().toList());
+        ApiResponse<Object> response = ApiResponse.error(apiError);
+        response.setPath(request.getRequestURI());
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiResponse<Object>> handleMessageNotReadable(
             HttpMessageNotReadableException ex, HttpServletRequest request) {
@@ -105,5 +127,15 @@ public class GlobalExceptionHandler {
         response.setPath(request.getRequestURI());
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ApiResponse<Object>> handleIllegalStateException(IllegalStateException ex, HttpServletRequest req){
+        String error = ex.getMessage();
+        log.warn("A IllegalStateException occurred: {}", error, ex);
+        ApiError apiError = new ApiError("Validation Failed", "VALIDATION_ERROR", error.lines().toList());
+        ApiResponse<Object> response = ApiResponse.error(apiError);
+        response.setPath(req.getRequestURI());
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);    }
+
 }
 

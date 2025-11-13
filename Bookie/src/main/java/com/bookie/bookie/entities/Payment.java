@@ -23,7 +23,10 @@ public class Payment extends AuditableBase{
     @Enumerated(EnumType.STRING)
     private PaymentStatus paymentStatus;
 
-    @Column(name = "amount", precision = 10, scale = 2)
+    @Column(name = "amount", nullable = false, precision = 10, scale = 2)
     private BigDecimal amount;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "booking_id", foreignKey = @ForeignKey(name = "payments_bookings_fk"))
+    private Booking booking;
 }

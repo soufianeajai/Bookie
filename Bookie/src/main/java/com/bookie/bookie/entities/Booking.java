@@ -3,12 +3,19 @@ package com.bookie.bookie.entities;
 
 import com.bookie.bookie.entities.enums.BookingStatus;
 import jakarta.persistence.*;
+import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Set;
 
 @Entity
 @Table(name = "bookings")
+@Builder
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class Booking extends  AuditableBase{
     @Id
     @SequenceGenerator(name = "booking_seq", sequenceName = "booking_seq", allocationSize = 20)
@@ -36,19 +43,20 @@ public class Booking extends  AuditableBase{
     @Column(name = "check_in_date")
     private LocalDate checkInDate;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "payment_id", foreignKey = @ForeignKey(name = "bookings_payment_fk"))
-    private Payment payment;
+    @Column(name = "amount", nullable = false, precision = 10, scale = 2)
+    private BigDecimal amount;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "booking_status", nullable = false)
     private BookingStatus bookingStatus;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(name = "bookings_guest",
                 joinColumns = @JoinColumn(name = "booking_id"),
                 inverseJoinColumns = @JoinColumn(name = "guest_id"),
                 foreignKey = @ForeignKey(name = "bookings_guest_fk"),
                 inverseForeignKey = @ForeignKey(name = "guests_booking_fk"))
     private Set<Guest> guests;
+
+
 }

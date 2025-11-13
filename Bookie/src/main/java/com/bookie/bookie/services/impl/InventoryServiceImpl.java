@@ -41,6 +41,7 @@ public class InventoryServiceImpl implements InventoryService {
                     .surgeFactor(BigDecimal.ONE)
                     .totalCount(room.getTotalCount())
                     .bookedCount(0)
+                    .reservedCount(0)
                     .city(room.getHotel().getCity())
                     .closed(false)
                     .build();
@@ -53,6 +54,6 @@ public class InventoryServiceImpl implements InventoryService {
     @Transactional()
     public Page<HotelSearchDto> searchAvailableHotels(HotelSearchCriteria criteria, Pageable pageable) {
         Page<Hotel> hotels = inventoryRepository.findWithDynamicAvailability(criteria, pageable);
-        return hotels.map(hotelMapper::toSearchDto);
+        return Boolean.TRUE.equals(criteria.getWithRooms()) ? hotels.map(hotelMapper::toSearchDto) : hotels.map(hotelMapper::toDtoWithoutRooms);
     }
 }

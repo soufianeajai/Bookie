@@ -38,6 +38,9 @@ public class Inventory extends AuditableBase {
     @Column(name = "booked_count", nullable = false, columnDefinition = "INTEGER DEFAULT 0")
     private Integer bookedCount;
 
+    @Column(name = "reserved_count", nullable = false, columnDefinition = "INTEGER DEFAULT 0")
+    private Integer reservedCount;
+
     @Column(name = "total_count", nullable = false)
     private Integer totalCount;
 

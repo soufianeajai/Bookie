@@ -2,6 +2,7 @@ package com.bookie.bookie.services;
 
 import com.bookie.bookie.dtos.hotel.CreateHotelDto;
 import com.bookie.bookie.dtos.hotel.HotelDto;
+import com.bookie.bookie.dtos.hotel.HotelSearchDto;
 
 import java.util.List;
 
@@ -13,4 +14,5 @@ public interface HotelService {
     HotelDto updateHotelById(Long id, CreateHotelDto hotelDto);
     void deleteHotelById(Long id);
     HotelDto activateHotel(Long id);
+    HotelSearchDto getHotelInfo(Long id);
 }

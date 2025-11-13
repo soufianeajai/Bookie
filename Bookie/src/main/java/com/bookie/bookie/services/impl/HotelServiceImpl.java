@@ -2,6 +2,7 @@ package com.bookie.bookie.services.impl;
 
 import com.bookie.bookie.dtos.hotel.CreateHotelDto;
 import com.bookie.bookie.dtos.hotel.HotelDto;
+import com.bookie.bookie.dtos.hotel.HotelSearchDto;
 import com.bookie.bookie.entities.Hotel;
 import com.bookie.bookie.entities.Room;
 import com.bookie.bookie.exceptions.ResourceNotFoundException;
@@ -78,6 +79,12 @@ public class HotelServiceImpl implements HotelService {
         return hotelMapper.toDto(hotel);
     }
 
+    @Override
+    @Transactional
+    public HotelSearchDto getHotelInfo(Long id) {
+        Hotel hotel = hotelRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(HOTEL_NOT_FOUND_ERROR_MESSAGE + id));
+        return hotelMapper.toSearchDto(hotel);
+    }
 
 
 }

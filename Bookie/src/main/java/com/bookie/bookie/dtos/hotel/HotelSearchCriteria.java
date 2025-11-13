@@ -13,5 +13,6 @@ public class HotelSearchCriteria {
     private LocalDate endDate;
     private String roomType;
     private Integer roomsCount;
+    private Boolean withRooms;
 
 }
