@@ -34,7 +34,7 @@ public class User extends AuditableBase implements UserDetails {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @ElementCollection(fetch = FetchType.LAZY)
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), foreignKey = @ForeignKey(name = "users_role_fk"))
     @Enumerated(EnumType.STRING)
     @Column(name = "roles", nullable = false)

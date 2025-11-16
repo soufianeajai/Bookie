@@ -1,10 +1,5 @@
 package com.bookie.bookie.services.impl;
 
-import com.bookie.bookie.dtos.user.AuthResponseDto;
-import com.bookie.bookie.dtos.user.LoginDto;
-import com.bookie.bookie.dtos.user.SignupDto;
-import com.bookie.bookie.dtos.user.UserDto;
-import com.bookie.bookie.entities.User;
 import com.bookie.bookie.exceptions.ResourceNotFoundException;
 import com.bookie.bookie.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
