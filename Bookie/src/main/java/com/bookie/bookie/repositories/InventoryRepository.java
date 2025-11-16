@@ -1,7 +1,7 @@
 package com.bookie.bookie.repositories;
 
+import com.bookie.bookie.entities.Hotel;
 import com.bookie.bookie.entities.Inventory;
-import com.bookie.bookie.entities.Room;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
@@ -31,4 +31,6 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long>, Inv
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate
     );
+
+    List<Inventory> findByHotelAndDateBetween(Hotel hotel, LocalDate startDate, LocalDate endDate);
 }

@@ -25,7 +25,7 @@ public class BookingExpiryService {
     private final InventoryRepository inventoryRepository;
     
     private static final int EXPIRY_MINUTES = 1;
-    private static final String DELAY_TIME_IN_MILLISECONDS = "30000";
+    private static final String DELAY_TIME_IN_MILLISECONDS = "3000000";
 
     @Scheduled(fixedDelayString = DELAY_TIME_IN_MILLISECONDS)
     @Transactional

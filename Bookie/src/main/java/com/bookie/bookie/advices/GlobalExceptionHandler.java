@@ -13,6 +13,7 @@ import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -126,6 +127,16 @@ public class GlobalExceptionHandler {
         ApiResponse<Object> response = ApiResponse.error(apiError);
         response.setPath(request.getRequestURI());
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ApiResponse<Object>> handleConstraintViolationException(BadCredentialsException ex, HttpServletRequest request) {
+        String error = ex.getMessage();
+        log.warn("A InvalidDataAccessApiUsageException occurred: {}", error, ex);
+        ApiError apiError = new ApiError("Validation Failed", "VALIDATION_ERROR", error.lines().toList());
+        ApiResponse<Object> response = ApiResponse.error(apiError);
+        response.setPath(request.getRequestURI());
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(IllegalStateException.class)

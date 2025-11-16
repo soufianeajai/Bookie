@@ -1,11 +1,15 @@
 package com.bookie.bookie.services.impl;
 
+import com.bookie.bookie.dtos.hotel.HotelPriceDto;
 import com.bookie.bookie.dtos.hotel.HotelSearchCriteria;
 import com.bookie.bookie.dtos.hotel.HotelSearchDto;
 import com.bookie.bookie.entities.Hotel;
+import com.bookie.bookie.entities.HotelMinPrice;
 import com.bookie.bookie.entities.Inventory;
 import com.bookie.bookie.entities.Room;
 import com.bookie.bookie.mappers.HotelMapper;
+import com.bookie.bookie.mappers.HotelPriceMapper;
+import com.bookie.bookie.repositories.HotelMinPriceRepository;
 import com.bookie.bookie.repositories.InventoryRepository;
 import com.bookie.bookie.services.InventoryService;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +28,9 @@ import java.util.List;
 public class InventoryServiceImpl implements InventoryService {
 
     private final InventoryRepository inventoryRepository;
+    private final HotelMinPriceRepository hotelMinPriceRepository;
     private final HotelMapper hotelMapper;
+    private final HotelPriceMapper hotelPriceMapper;
     @Override
     @Transactional
     public void initializeRoomForAYear(Room room) {
@@ -56,4 +62,12 @@ public class InventoryServiceImpl implements InventoryService {
         Page<Hotel> hotels = inventoryRepository.findWithDynamicAvailability(criteria, pageable);
         return Boolean.TRUE.equals(criteria.getWithRooms()) ? hotels.map(hotelMapper::toSearchDto) : hotels.map(hotelMapper::toDtoWithoutRooms);
     }
+
+    @Override
+    @Transactional
+    public Page<HotelPriceDto> searcheHotelsByprice(HotelSearchCriteria criteria, Pageable pageable) {
+        return hotelMinPriceRepository.findHotelByMinPrice(criteria.getCity(), criteria.getStartDate(), criteria.getEndDate(), pageable);
+    }
+
+
 }

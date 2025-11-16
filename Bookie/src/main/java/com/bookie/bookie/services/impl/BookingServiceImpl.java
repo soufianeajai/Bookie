@@ -13,6 +13,7 @@ import com.bookie.bookie.repositories.HotelRepository;
 import com.bookie.bookie.repositories.InventoryRepository;
 import com.bookie.bookie.repositories.RoomRepository;
 import com.bookie.bookie.services.BookingService;
+import com.bookie.bookie.strategy.PricingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Set;
@@ -37,13 +37,14 @@ public class BookingServiceImpl implements BookingService {
     private  final InventoryRepository inventoryRepository;
     private final BookingMapper bookingMapper;
     private final GuestMapper guestMapper;
+    private final PricingService pricingService;
     private static final String HOTEL_NOT_FOUND_ERROR_MESSAGE = "Hotel not found with id : ";
     private static final String ROOM_NOT_FOUND_ERROR_MESSAGE = "Room not found with id : ";
     private static final String BOOKING_NOT_FOUND_ERROR_MESSAGE = "Booking not found with id : ";
 
     @Override
     @Transactional
-    public BookingDto initialiseBooking(BookingRequestDto bookingRequestDto) {
+    public BookingDto initialiseBooking(BookingRequestDto bookingRequestDto, User user) {
         Hotel hotel = hotelRepository.findById(bookingRequestDto.getHotelId()).orElseThrow(() -> new ResourceNotFoundException(HOTEL_NOT_FOUND_ERROR_MESSAGE + bookingRequestDto.getHotelId()));
         Room room = roomRepository.findByIdAndHotel(bookingRequestDto.getRoomId(), hotel).orElseThrow(() -> new ResourceNotFoundException(ROOM_NOT_FOUND_ERROR_MESSAGE + bookingRequestDto.getRoomId()));
 
@@ -65,9 +66,10 @@ public class BookingServiceImpl implements BookingService {
             String error = new StringBuilder("Room with Id = ").append(bookingRequestDto.getRoomId()).append(" is not available for all nights between ").append(checkIn).append(" and ").append(checkOut).toString();
             throw new ResourceNotFoundException(error);
         }
-
+        BigDecimal price = BigDecimal.valueOf(0L);
         for (Inventory inventory : inventories) {
             inventory.setReservedCount(inventory.getReservedCount() + bookingRequestDto.getRoomsCount());
+            price = price.add(pricingService.calculateDynamicPricing(inventory));
         }
         inventoryRepository.saveAll(inventories);
         Booking booking = Booking.builder()
@@ -76,8 +78,8 @@ public class BookingServiceImpl implements BookingService {
                 .roomsCount(bookingRequestDto.getRoomsCount())
                 .checkInDate(checkIn)
                 .checkOutDate(checkOut)
-                .user(getCurrentUser())
-                .amount(BigDecimal.TEN).build();
+                .user(user)
+                .amount(price).build();
         // TODO: Calculate price
 
         return bookingMapper.toDto(bookingRepository.save(booking));
@@ -85,7 +87,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional
-    public BookingDto addGuests(Set<GuestDto> guests, Long id) {
+    public BookingDto addGuests(Set<GuestDto> guests, Long id, User user) {
         Booking booking = bookingRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(BOOKING_NOT_FOUND_ERROR_MESSAGE + id));
         if(booking.getBookingStatus() == BookingStatus.EXPIRED){
             throw new  IllegalStateException("booking is expired");
@@ -94,7 +96,7 @@ public class BookingServiceImpl implements BookingService {
             throw  new IllegalStateException("booking is not in reserved state, cannot add guests");
         for (GuestDto guest : guests){
             Guest g = guestMapper.toEntity(guest);
-            g.setUser(getCurrentUser());
+            g.setUser(user);
             booking.getGuests().add(g);
         }
         booking.setBookingStatus(BookingStatus.GUESTS_ADDED);
@@ -107,10 +109,5 @@ public class BookingServiceImpl implements BookingService {
     public BookingDto getBookingById(Long id) {
         Booking booking = bookingRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(BOOKING_NOT_FOUND_ERROR_MESSAGE + id));
         return bookingMapper.toDto(booking);
-    }
-
-    private User getCurrentUser(){
-        User user = User.builder().id(1L).name(String.valueOf(ThreadLocalRandom.current().nextLong())).email("soufiane.ajaite@gmail.com").build();
-        return user;
     }
 }
