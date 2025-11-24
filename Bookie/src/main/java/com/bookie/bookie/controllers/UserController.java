@@ -1,31 +1,28 @@
 package com.bookie.bookie.controllers;
 
 
-import com.bookie.bookie.dtos.user.AuthResponseDto;
-import com.bookie.bookie.dtos.user.LoginDto;
-import com.bookie.bookie.dtos.user.SignupDto;
-import com.bookie.bookie.services.AuthService;
-import lombok.RequiredArgsConstructor;
+import com.bookie.bookie.dtos.user.UserDto;
+import com.bookie.bookie.services.impl.UserService;
+import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @Controller
 @RestController
-@RequiredArgsConstructor
-@RequestMapping("auth")
+@RequestMapping("users")
+@AllArgsConstructor
 public class UserController {
 
-    private final AuthService authService;
 
-    @PostMapping("/signup")
-    public ResponseEntity<AuthResponseDto> signUp(@RequestBody SignupDto signupDto) {
-        return ResponseEntity.ok(authService.signUp(signupDto));
+    private final UserService userService;
+
+    @GetMapping
+    public ResponseEntity<List<UserDto>> getAllUsers (){
+        return ResponseEntity.ok(userService.findAllUsers());
     }
-
-    @PostMapping("/login")
-    public ResponseEntity<AuthResponseDto> signUp(@RequestBody LoginDto loginDto) {
-        return ResponseEntity.ok(authService.login(loginDto));
-    }
-
 }

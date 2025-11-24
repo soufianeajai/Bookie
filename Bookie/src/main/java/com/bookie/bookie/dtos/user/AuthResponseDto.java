@@ -7,5 +7,6 @@ import lombok.Data;
 @Builder
 public class AuthResponseDto {
     private UserDto user;
-    private String jwtToken;
+    private String jwtAccessToken;
+    private String jwtRefreshToken;
 }

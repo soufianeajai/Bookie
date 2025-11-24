@@ -5,6 +5,7 @@ import com.bookie.bookie.advices.wrappers.ApiError;
 import com.bookie.bookie.advices.wrappers.ApiResponse;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
@@ -13,14 +14,14 @@ import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@RestControllerAdvice("com.bookie.bookie.controllers")
+@RestControllerAdvice()
 @Slf4j
 public class GlobalExceptionHandler {
 
@@ -55,7 +56,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ApiResponse<Object>> handleConstraintViolationException(ConstraintViolationException ex, HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<Object>> handleJwtException(ConstraintViolationException ex, HttpServletRequest request) {
         log.warn("A ConstraintViolationException occurred: {}", ex.getMessage(), ex);
         List<String> errors = ex.getConstraintViolations().stream()
                 .map(cv -> {
@@ -71,7 +72,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ApiResponse<Object>> handleConstraintViolationException(IllegalArgumentException ex, HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<Object>> handleJwtException(IllegalArgumentException ex, HttpServletRequest request) {
         String error = ex.getMessage();
         log.warn("A IllegalArgumentException occurred: {}", error, ex);
         ApiError apiError = new ApiError("Validation Failed", "VALIDATION_ERROR", error.lines().toList());
@@ -82,7 +83,7 @@ public class GlobalExceptionHandler {
 
 
     @ExceptionHandler(InvalidDataAccessApiUsageException.class)
-    public ResponseEntity<ApiResponse<Object>> handleConstraintViolationException(InvalidDataAccessApiUsageException ex, HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<Object>> handleJwtException(InvalidDataAccessApiUsageException ex, HttpServletRequest request) {
         String error = ex.getMessage();
         log.warn("A InvalidDataAccessApiUsageException occurred: {}", error, ex);
         ApiError apiError = new ApiError("Validation Failed", "VALIDATION_ERROR", error.lines().toList());
@@ -120,6 +121,35 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ApiResponse<Object>> handleIllegalStateException(IllegalStateException ex, HttpServletRequest req){
+        String error = ex.getMessage();
+        log.warn("A IllegalStateException occurred: {}", error, ex);
+        ApiError apiError = new ApiError("Validation Failed", "VALIDATION_ERROR", error.lines().toList());
+        ApiResponse<Object> response = ApiResponse.error(apiError);
+        response.setPath(req.getRequestURI());
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ApiResponse<Object>> handleAuthenticationException(AuthenticationException ex, HttpServletRequest request){
+        String error = ex.getMessage();
+        log.warn("A AuthenticationException occurred: {}", error, ex);
+        ApiError apiError = new ApiError("Authentication Failed", "UNAUTHORIZED", error.lines().toList());
+        ApiResponse<Object> response = ApiResponse.error(apiError);
+        response.setPath(request.getRequestURI());
+        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(JwtException.class)
+    public ResponseEntity<ApiResponse<Object>> handleJwtException(JwtException ex, HttpServletRequest request) {
+        String error = ex.getMessage();
+        log.warn("A JwtException occurred: {}", error, ex);
+        ApiError apiError = new ApiError("Authentication Failed", "UNAUTHORIZED", error.lines().toList());
+        ApiResponse<Object> response = ApiResponse.error(apiError);
+        response.setPath(request.getRequestURI());
+        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+    }
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Object>> handleGlobalExceptions(Exception ex, HttpServletRequest request) {
         log.error("Unhandled exception occurred: {}", ex.getMessage(), ex);
@@ -129,24 +159,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ApiResponse<Object>> handleConstraintViolationException(BadCredentialsException ex, HttpServletRequest request) {
-        String error = ex.getMessage();
-        log.warn("A InvalidDataAccessApiUsageException occurred: {}", error, ex);
-        ApiError apiError = new ApiError("Validation Failed", "VALIDATION_ERROR", error.lines().toList());
-        ApiResponse<Object> response = ApiResponse.error(apiError);
-        response.setPath(request.getRequestURI());
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-    }
 
-    @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<ApiResponse<Object>> handleIllegalStateException(IllegalStateException ex, HttpServletRequest req){
-        String error = ex.getMessage();
-        log.warn("A IllegalStateException occurred: {}", error, ex);
-        ApiError apiError = new ApiError("Validation Failed", "VALIDATION_ERROR", error.lines().toList());
-        ApiResponse<Object> response = ApiResponse.error(apiError);
-        response.setPath(req.getRequestURI());
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);    }
 
 }
 

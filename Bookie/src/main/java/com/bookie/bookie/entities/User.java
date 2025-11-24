@@ -8,6 +8,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -37,11 +38,12 @@ public class User extends AuditableBase implements UserDetails {
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), foreignKey = @ForeignKey(name = "users_role_fk"))
     @Enumerated(EnumType.STRING)
-    @Column(name = "roles", nullable = false)
+    @Column(name = "roles", nullable = true)
     private Set<Role> roles = new HashSet<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        if (roles == null) return Collections.emptyList();
         return roles.stream().map(role -> new SimpleGrantedAuthority(role.toString())).toList();
     }
 
