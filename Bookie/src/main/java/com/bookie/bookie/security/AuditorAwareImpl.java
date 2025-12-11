@@ -1,4 +1,4 @@
-package com.bookie.bookie.auth;
+package com.bookie.bookie.security;
 
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.lang.NonNull;

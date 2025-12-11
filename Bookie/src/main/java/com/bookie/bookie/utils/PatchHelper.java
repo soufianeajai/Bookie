@@ -12,10 +12,6 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * A reusable, generic component for performing JSON Merge Patch
- * operations. It handles the "merge-then-validate" logic.
- */
 
 @Component
 public class PatchHelper {

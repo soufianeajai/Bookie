@@ -6,6 +6,7 @@ import com.bookie.bookie.dtos.guest.GuestDto;
 import com.bookie.bookie.entities.*;
 import com.bookie.bookie.entities.enums.BookingStatus;
 import com.bookie.bookie.exceptions.ResourceNotFoundException;
+import com.bookie.bookie.exceptions.UnauthorizedException;
 import com.bookie.bookie.mappers.BookingMapper;
 import com.bookie.bookie.mappers.GuestMapper;
 import com.bookie.bookie.repositories.BookingRepository;
@@ -89,6 +90,11 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     public BookingDto addGuests(Set<GuestDto> guests, Long id, User user) {
         Booking booking = bookingRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(BOOKING_NOT_FOUND_ERROR_MESSAGE + id));
+        if (!user.equals(booking.getUser())){
+            throw new UnauthorizedException("you can not add guests in a booking that dont belong to you");
+        }
+
+
         if(booking.getBookingStatus() == BookingStatus.EXPIRED){
             throw new  IllegalStateException("booking is expired");
         }

@@ -3,6 +3,7 @@ package com.bookie.bookie.advices;
 import com.bookie.bookie.exceptions.ResourceNotFoundException;
 import com.bookie.bookie.advices.wrappers.ApiError;
 import com.bookie.bookie.advices.wrappers.ApiResponse;
+import com.bookie.bookie.exceptions.UnauthorizedException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import io.jsonwebtoken.JwtException;
@@ -16,8 +17,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestCookieException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,6 +46,15 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> handleResourceNotFoundException(ResourceNotFoundException ex, HttpServletRequest request) {
         log.warn("A ResourceNotFoundException occurred: {}", ex.getMessage(), ex);
         ApiError apiError = new ApiError(ex.getMessage(), "RESOURCE_NOT_FOUND");
+        ApiResponse<Object> response = ApiResponse.error(apiError);
+        response.setPath(request.getRequestURI());
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ApiResponse<Object>> handleUnauthorizedException(UnauthorizedException ex, HttpServletRequest request) {
+        log.warn("A UnauthorizedException occurred: {}", ex.getMessage(), ex);
+        ApiError apiError = new ApiError(ex.getMessage(), "Unauthorized Operation");
         ApiResponse<Object> response = ApiResponse.error(apiError);
         response.setPath(request.getRequestURI());
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
@@ -141,10 +154,12 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
 
-    @ExceptionHandler(JwtException.class)
-    public ResponseEntity<ApiResponse<Object>> handleJwtException(JwtException ex, HttpServletRequest request) {
+
+
+    @ExceptionHandler(MissingRequestCookieException.class)
+    public ResponseEntity<ApiResponse<Object>> handleMissingRequestCookieException(MissingRequestCookieException ex, HttpServletRequest request) {
         String error = ex.getMessage();
-        log.warn("A JwtException occurred: {}", error, ex);
+        log.warn("Error : {}", error, ex);
         ApiError apiError = new ApiError("Authentication Failed", "UNAUTHORIZED", error.lines().toList());
         ApiResponse<Object> response = ApiResponse.error(apiError);
         response.setPath(request.getRequestURI());

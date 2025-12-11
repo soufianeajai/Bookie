@@ -3,11 +3,10 @@ package com.bookie.bookie.services;
 import com.bookie.bookie.dtos.user.AuthResponseDto;
 import com.bookie.bookie.dtos.user.LoginDto;
 import com.bookie.bookie.dtos.user.SignupDto;
-import jakarta.servlet.http.HttpServletResponse;
+import com.bookie.bookie.dtos.user.UserDto;
 
 public interface AuthService {
-    AuthResponseDto signUp(SignupDto signupDto);
-    AuthResponseDto login(LoginDto loginDto, HttpServletResponse response);
-
+    UserDto signUp(SignupDto signupDto);
+    AuthResponseDto login(LoginDto loginDto);
     AuthResponseDto refresh(String refreshToken);
 }

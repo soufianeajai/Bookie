@@ -7,10 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Getter
@@ -44,8 +41,9 @@ public class User extends AuditableBase implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         if (roles == null) return Collections.emptyList();
-        return roles.stream().map(role -> new SimpleGrantedAuthority(role.toString())).toList();
+        return roles.stream().map(role -> new SimpleGrantedAuthority("ROLE_"+role.name())).toList();
     }
+
 
     @Override
     public String getUsername() {
@@ -69,5 +67,17 @@ public class User extends AuditableBase implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof User user)) return false;
+        return Objects.equals(id, user.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 }

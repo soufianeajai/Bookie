@@ -3,10 +3,13 @@ package com.bookie.bookie.services.impl;
 import com.bookie.bookie.dtos.user.AuthResponseDto;
 import com.bookie.bookie.dtos.user.LoginDto;
 import com.bookie.bookie.dtos.user.SignupDto;
+import com.bookie.bookie.dtos.user.UserDto;
 import com.bookie.bookie.entities.User;
+import com.bookie.bookie.entities.enums.Role;
 import com.bookie.bookie.exceptions.ResourceNotFoundException;
 import com.bookie.bookie.mappers.UserMapper;
 import com.bookie.bookie.repositories.UserRepository;
+import com.bookie.bookie.security.JwtService;
 import com.bookie.bookie.services.AuthService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.Set;
 
 
 @Service
@@ -38,30 +42,26 @@ public class AuthServiceImpl implements AuthService {
     private static final String ERROR_MESSAGE = "User not found with Email, Or wrong Password ";
 
     @Transactional
-    public AuthResponseDto signUp(SignupDto signupDto) {
+    public UserDto signUp(SignupDto signupDto) {
         Optional<User> userExists = userRepository.findByEmail(signupDto.getEmail());
         if (userExists.isPresent())
             throw new BadCredentialsException("the User already exists with email " + signupDto.getEmail());
         User user = userMapper.toEntity(signupDto);
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setRoles(Set.of(Role.GUEST));
+        user.setPassword(passwordEncoder.encode(signupDto.getPassword()));
         user.setCreatedBy(signupDto.getEmail());
         user.setLastModifiedBy(signupDto.getEmail());
         userRepository.save(user);
-        String accessToken = jwtService.generateAccessToken(user);
-        String refreshToken = jwtService.generateRefreshToken(user);
-        return AuthResponseDto.builder().user(userMapper.toDto(user)).jwtAccessToken(accessToken).jwtRefreshToken(refreshToken).build();
+        return userMapper.toDto(user);
     }
 
     @Transactional
-    public AuthResponseDto login(LoginDto loginDto, HttpServletResponse response) {
+    public AuthResponseDto login(LoginDto loginDto) {
         Authentication authentication =  authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginDto.getEmail(), loginDto.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         User user = (User)authentication.getPrincipal();
         String accessToken = jwtService.generateAccessToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
-        Cookie cookie = new Cookie("refresh_token", refreshToken);
-        cookie.setHttpOnly(true);
-        response.addCookie(cookie);
         return AuthResponseDto.builder().user(userMapper.toDto(user)).jwtAccessToken(accessToken).jwtRefreshToken(refreshToken).build();
     }
 

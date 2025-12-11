@@ -4,7 +4,9 @@ import com.bookie.bookie.dtos.room.CreateRoomDto;
 import com.bookie.bookie.dtos.room.RoomDto;
 import com.bookie.bookie.entities.Hotel;
 import com.bookie.bookie.entities.Room;
+import com.bookie.bookie.entities.User;
 import com.bookie.bookie.exceptions.ResourceNotFoundException;
+import com.bookie.bookie.exceptions.UnauthorizedException;
 import com.bookie.bookie.mappers.RoomMapper;
 import com.bookie.bookie.repositories.HotelRepository;
 import com.bookie.bookie.repositories.RoomRepository;
@@ -33,8 +35,11 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     @Transactional
-    public RoomDto createNewRoom(CreateRoomDto createRoomDto, Long hotelId) {
+    public RoomDto createNewRoom(CreateRoomDto createRoomDto, Long hotelId, User authenticatedUser) {
         Hotel hotel = hotelRepository.findById(hotelId).orElseThrow(() -> new ResourceNotFoundException(HOTEL_NOT_FOUND_ERROR_MESSAGE + hotelId));
+        if (!authenticatedUser.equals(hotel.getOwner())){
+            throw new UnauthorizedException("the user with email : " + authenticatedUser.getEmail() + " is not the owner of the hotel " + hotel.getName());
+        }
         Room room = roomMapper.toEntity(createRoomDto);
         room.setHotel(hotel);
 
@@ -60,16 +65,22 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     @Transactional
-    public RoomDto updateRoomById(CreateRoomDto createRoomDto, Long id) {
+    public RoomDto updateRoomById(CreateRoomDto createRoomDto, Long id, User authenticatedUser) {
         Room room = roomRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(ROOM_NOT_FOUND_ERROR_MESSAGE + id));
+        if (!authenticatedUser.equals(room.getHotel().getOwner())){
+            throw new UnauthorizedException("the user with email : " + authenticatedUser.getEmail() + " is not the owner of the hotel " + room.getHotel().getName());
+        }
         roomMapper.updateEntityFromDto(createRoomDto, room);
         return roomMapper.toDto(room);
     }
 
     @Override
     @Transactional
-    public RoomDto patchRoomById(Map<String, Object> patchValues, Long id) {
+    public RoomDto patchRoomById(Map<String, Object> patchValues, Long id, User authenticatedUser) {
         Room room = roomRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(ROOM_NOT_FOUND_ERROR_MESSAGE + id));
+        if (!authenticatedUser.equals(room.getHotel().getOwner())){
+            throw new UnauthorizedException("the user with email : " + authenticatedUser.getEmail() + " is not the owner of the hotel " + room.getHotel().getName());
+        }
         CreateRoomDto createRoomDto = roomMapper.toCreateRoomDto(room);
         CreateRoomDto mergedDto = patchHelper.mergeAndValidate(createRoomDto, patchValues);
         roomMapper.updateEntityFromDto(mergedDto, room);
@@ -79,8 +90,11 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     @Transactional
-    public void deleteRoomById(Long id) {
+    public void deleteRoomById(Long id, User authenticatedUser) {
         Room room = roomRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(ROOM_NOT_FOUND_ERROR_MESSAGE + id));
+        if (!authenticatedUser.equals(room.getHotel().getOwner())){
+            throw new UnauthorizedException("the user with email : " + authenticatedUser.getEmail() + " is not the owner of the hotel " + room.getHotel().getName());
+        }
         roomRepository.delete(room);
     }
 }

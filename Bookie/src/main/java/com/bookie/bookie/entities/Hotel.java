@@ -51,7 +51,7 @@ public class Hotel extends AuditableBase {
     @OneToMany(mappedBy = "hotel", fetch = FetchType.LAZY)
     private List<Inventory> inventories;
 
-    @ManyToOne
-    @JoinColumn(name = "owner_id", nullable = true, foreignKey = @ForeignKey(name = "hotels_user_fk"))
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "owner_id", foreignKey = @ForeignKey(name = "hotels_user_fk"))
     private User owner;
 }

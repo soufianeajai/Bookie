@@ -1,4 +1,4 @@
-package com.bookie.bookie.services.impl;
+package com.bookie.bookie.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
